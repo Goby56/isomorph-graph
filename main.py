@@ -41,6 +41,8 @@ def V1(A, B):
     return isomorphic
 
 def V2(A, B):
+    # Inte tillräckligt :(
+    # https://math.stackexchange.com/a/2756140
     pA, pB = np.sum(A, axis=0), np.sum(B, axis=0)
     if not equal_profile(pA, pB):
         return False
