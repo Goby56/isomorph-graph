@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import eigvals
 from itertools import permutations
+from permutator import generate_permutation_matrix, equal_profile
 
 def equal_eigenvalues(A, B):
     A_eigenvalues = np.sort(np.round(np.real(eigvals(A)), 4))
@@ -32,16 +33,34 @@ def generate_isomorphic_graphs(n):
     
     return A, B
 
-def main():
-    A, B = generate_isomorphic_graphs(11)
+def V1(A, B):
+    if not equal_eigenvalues(A, B):
+        return False
+    isomorphic, matrix_P = check_permutations(A, B)
+    print(matrix_P)
+    return isomorphic
 
+def V2(A, B):
+    # Inte tillräckligt :(
+    # https://math.stackexchange.com/a/2756140
+    pA, pB = np.sum(A, axis=0), np.sum(B, axis=0)
+    if not equal_profile(pA, pB):
+        return False
+    isomorphic, P = generate_permutation_matrix(pA, pB)
+    print(P)
+    return isomorphic
+    
+
+def main():
+    A, B = generate_isomorphic_graphs(5)
     print(A)
     print(B)
-    if (equal_eigenvalues(A, B)):
-        isomorphic, matrix_P = check_permutations(A, B)
-        print(isomorphic)
-        print(matrix_P)
-    else:
-        print(False)
 
-main()
+    print(np.sum(A, axis=0))
+    print(np.sum(B, axis=0))
+
+    print(V2(A, B))
+
+
+if __name__ == "__main__":
+    main()
