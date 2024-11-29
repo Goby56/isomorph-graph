@@ -36,14 +36,14 @@ def V1(A, B):
     if not equal_eigenvalues(A, B):
         return False
     isomorphic, matrix_P = check_permutations(A, B)
-    print(matrix_P)
+    print(f"P matris\n{matrix_P}")
     return isomorphic
 
-
 def main():
-    A, B = generate_isomorphic_graphs(5)
+    A, B = generate_isomorphic_graphs(3)
     print(A)
     print(B)
+    print(V1(A, B))
 
 if __name__ == "__main__":
     main()

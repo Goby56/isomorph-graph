@@ -9,6 +9,7 @@ in
         python-pkgs.networkx
         python-pkgs.matplotlib
         python-pkgs.pandas
+        python-pkgs.pygame
       ]))
     ];
   }

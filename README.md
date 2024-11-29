@@ -1,2 +1,2 @@
 # isomorph-graph
-Using linear algebra to determine if two graphs are isomorph
+Using linear algebra to determine if two graphs are isomorphic
