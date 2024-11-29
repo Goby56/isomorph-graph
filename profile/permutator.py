@@ -1,6 +1,4 @@
-import re
 from typing import List, Self, Tuple
-import numpy as np
 
 def equal_profile(pA, pB):
     edgesA = {}
