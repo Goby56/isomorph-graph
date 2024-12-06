@@ -16,7 +16,7 @@ def visualize_graph(adj_matrix, graph_title):
     plt.title(graph_title)
     plt.show()
 
-G1_adj_matrix = read_adjacency_matrix('graph1.csv')
-G2_adj_matrix = read_adjacency_matrix('graph2.csv')
+G1_adj_matrix = read_adjacency_matrix('graphs/graph2.csv')
+G2_adj_matrix = read_adjacency_matrix('graphs/graph3.csv')
 visualize_graph(G1_adj_matrix, "Graph 1")
 visualize_graph(G2_adj_matrix, "Graph 2")
