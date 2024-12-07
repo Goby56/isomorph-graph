@@ -2,8 +2,9 @@ import pygame, sys, math, os, random
 import numpy as np
 import pandas as pd
 
+import utils
+
 DIM = (1200, 600) # dimensions
-GRAPH_DIR = "./graphs"
 NODE_SIZE = 30
 MAX_NODES = 50
 EDGE_THICKNESS = 3
@@ -13,9 +14,6 @@ ad_matrix = np.zeros((MAX_NODES, MAX_NODES), dtype=np.int8)
 nodes = []
 
 selected_node = -1
-
-def get_graph_filenames():
-    return [name for name in os.listdir(GRAPH_DIR) if os.path.isfile(os.path.join(GRAPH_DIR, name))]
 
 def handle_click(mouse_button, mouse_pos, selected_node, ad_matrix):
     right_click = mouse_button == 3 
@@ -56,23 +54,13 @@ def remove_node(i):
     ad_matrix[:, -1] = 0  # Last column
     nodes.pop(i)
 
-def save_graph(ad_matrix):
-    graph_count = len(get_graph_filenames())
-    n = len(nodes)
-    name = f"graph{graph_count+1}.csv"
-    pd.DataFrame(ad_matrix[:n,:n]).to_csv(os.path.join(GRAPH_DIR, name), header=False, index=False)
-    print(f"Saved {name} with {n} nodes")
-
-def read_adjacency_matrix(file_path):
-    df = pd.read_csv(file_path, header=None)
-    return df.values
-
 if input("Read from existing graph? (y/N)") == "y":
-    existing_graphs = get_graph_filenames() 
+    existing_graphs = utils.get_graph_filenames() 
     for g in existing_graphs:
         print(g)
-    n = int(input(f"Please select a graph (1-{len(existing_graphs)})"))
-    m = read_adjacency_matrix(os.path.join(GRAPH_DIR, f"graph{n}.csv"))
+    print("Please select a graph")
+    n = utils.ask_for_int(1, len(existing_graphs))
+    m = utils.read_adjacency_matrix(f"graph{n}.csv")
     ad_matrix[:m.shape[0],:m.shape[1]] = m
     for i in range(m.shape[0]):
         random.seed(i)
@@ -97,7 +85,7 @@ while True:
                 pygame.quit()
                 sys.exit()
             if event.key == pygame.K_SPACE:
-                save_graph(ad_matrix)
+                utils.save_graph(ad_matrix, nodes)
         if event.type == pygame.MOUSEBUTTONDOWN:
             selected_node = handle_click(event.button, pygame.mouse.get_pos(), selected_node, ad_matrix)
 

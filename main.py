@@ -1,49 +1,61 @@
+import inspect
 import numpy as np
-from scipy.linalg import eigvals
-from itertools import permutations
 
-def equal_eigenvalues(A, B):
-    A_eigenvalues = np.sort(np.round(np.real(eigvals(A)), 4))
-    B_eigenvalues = np.sort(np.round(np.real(eigvals(B)), 4))
-    return np.array_equal(A_eigenvalues, B_eigenvalues)
+import utils, algorithms
+from algorithms import IsomorphicChecker
+from performance import PerformanceTest
 
-def check_permutations(A, B):
-    n = len(A)
-    perms = permutations(range(n))
+def check_isomorphism(A: np.ndarray, B: np.ndarray, algorithm: IsomorphicChecker):
+    print(f"Are isomorhpic: {algorithm.is_isomorphic(A, B)}")
+
+def test_performance(algorithm: IsomorphicChecker, node_count: int, iterations: int):
+    test = PerformanceTest(algorithm, node_count, iterations)
+    test.start()
+    print(test.result)
+
+def select_algorithm() -> IsomorphicChecker:
+    classes = {name: obj for name, obj in inspect.getmembers(algorithms, inspect.isclass)}
     
-    for perm in perms:
-        matrix_P = np.eye(n)[list(perm)]
-        if np.array_equal(matrix_P.T @ A @ matrix_P, B):
-            return True, matrix_P
-
-    return False, None
-
-def generate_isomorphic_graphs(n):
-    A = np.zeros((n, n), dtype=int)
-    for i in range(n):
-        for j in range(i + 1, n):
-            edge = np.random.choice([0, 1])
-            A[i, j] = edge
-            A[j, i] = edge
+    print("Which algorithm do you want?")
+    subclasses = classes["IsomorphicChecker"].__subclasses__()
+    for i, class_name in enumerate(subclasses):
+        print(f"{i+1}. {class_name}")
     
-    permutation = np.random.permutation(n)
+    choice = utils.ask_for_int(1, len(classes))
+    SelectedClass = list(subclasses)[choice - 1]
     
-    B = A[np.ix_(permutation, permutation)]
-    
-    return A, B
-
-def V1(A, B):
-    if not equal_eigenvalues(A, B):
-        return False
-    isomorphic, matrix_P = check_permutations(A, B)
-    print(f"P matris\n{matrix_P}")
-    return isomorphic
+    use_eigen_check = input("Use eigen value check? (Y/n)") != "n"
+    return SelectedClass(use_eigen_check)
 
 def main():
-    A, B = generate_isomorphic_graphs(3)
-    print(A)
-    print(B)
-    print(V1(A, B))
+    print(
+    """
+    Do you want to check isomorphism between two given graphs 
+    or test the performance of an algorithm?
+    1. Check isomorphism
+    2. Performance test
+    """)
+    choice = utils.ask_for_int(1, 2)
+    if choice == 1:
+        print("Select two graphs you want to check.")
+        existing_graphs = utils.get_graph_filenames() 
+        for g in existing_graphs:
+            print(g)
+        print("Please select the first graph")
+        g1 = utils.ask_for_int(1, len(existing_graphs))
+        print("Please select the second graph")
+        g2 = utils.ask_for_int(1, len(existing_graphs))
+        A = utils.read_adjacency_matrix(f"graph{g1}.csv")
+        B = utils.read_adjacency_matrix(f"graph{g2}.csv")
+        check_isomorphism(A, B, select_algorithm())
+    if choice == 2:
+        algorithm = select_algorithm()
+        print("How many nodes should the graphs have?")
+        node_count = utils.ask_for_int(2, 50)
+        print("For how many iterations should the algorithm run?")
+        iterations = utils.ask_for_int(1, 100)
+        test_performance(algorithm, node_count, iterations)
+
 
 if __name__ == "__main__":
     main()
