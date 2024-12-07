@@ -21,7 +21,8 @@ class PerformanceTest:
             self.algorithm.find_permutation_matrix(A, B)
             dt = (timer.time() - t0) * 1000
             if self.log:
-                print(f"Found permuations matrix in {dt:.2}ms")
+                print(f"Found permuations matrix in {dt:.2f}ms")
+            total_time += dt
 
         self.result["average_time"] = total_time / self.iterations 
             
