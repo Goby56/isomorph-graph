@@ -25,4 +25,7 @@ class PerformanceTest:
             total_time += dt
 
         self.result["average_time"] = total_time / self.iterations 
+
+    def __str__(self) -> str:
+        return f"Average time: {self.result['average_time']:.2f}ms"
             

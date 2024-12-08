@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 import os
@@ -18,6 +18,16 @@ def generate_isomorphic_graphs(nodes: int) -> Tuple[np.ndarray, np.ndarray]:
     B = A[np.ix_(permutation, permutation)]
     
     return A, B
+
+def permutation_matrix_check(A: np.ndarray, B: np.ndarray, P: np.ndarray) -> bool:
+    return np.array_equal(P.T @ A @ P, B)
+
+def get_permutation_matrix_from_swaps(matrix_size: int, swaps: List[Tuple[int, int]]):
+    P = np.eye(matrix_size)
+    for swap in swaps:
+        i, j = swap
+        P[[i, j]] = P[[j, i]]
+    return P
 
 def get_graph_filenames():
     return [name for name in os.listdir(GRAPH_DIR) if os.path.isfile(os.path.join(GRAPH_DIR, name))]

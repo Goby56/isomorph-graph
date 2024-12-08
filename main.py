@@ -11,20 +11,22 @@ def check_isomorphism(A: np.ndarray, B: np.ndarray, algorithm: IsomorphicChecker
 def test_performance(algorithm: IsomorphicChecker, node_count: int, iterations: int):
     test = PerformanceTest(algorithm, node_count, iterations)
     test.start()
-    print(test.result)
+    print(test)
 
-def select_algorithm() -> IsomorphicChecker:
+def select_algorithm(ask_for_eigen_check: bool) -> IsomorphicChecker:
     classes = {name: obj for name, obj in inspect.getmembers(algorithms, inspect.isclass)}
     
     print("Which algorithm do you want?")
     subclasses = classes["IsomorphicChecker"].__subclasses__()
-    for i, class_name in enumerate(subclasses):
-        print(f"{i+1}. {class_name}")
+    for i, obj in enumerate(subclasses):
+        print(f"{i+1}. {obj.__name__}")
     
-    choice = utils.ask_for_int(1, len(classes))
+    choice = utils.ask_for_int(1, len(subclasses))
     SelectedClass = list(subclasses)[choice - 1]
-    
-    use_eigen_check = input("Use eigen value check? (Y/n)") != "n"
+
+    use_eigen_check = True
+    if ask_for_eigen_check: 
+        use_eigen_check = input("Use eigen value check? (Y/n)") != "n"
     return SelectedClass(use_eigen_check)
 
 def main():
@@ -47,9 +49,9 @@ def main():
         g2 = utils.ask_for_int(1, len(existing_graphs))
         A = utils.read_adjacency_matrix(f"graph{g1}.csv")
         B = utils.read_adjacency_matrix(f"graph{g2}.csv")
-        check_isomorphism(A, B, select_algorithm())
+        check_isomorphism(A, B, select_algorithm(True))
     if choice == 2:
-        algorithm = select_algorithm()
+        algorithm = select_algorithm(False)
         print("How many nodes should the graphs have?")
         node_count = utils.ask_for_int(2, 50)
         print("For how many iterations should the algorithm run?")

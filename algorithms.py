@@ -1,7 +1,9 @@
 from typing import Optional
 import numpy as np
 from scipy.linalg import eigvals
-from itertools import permutations
+from itertools import permutations, product
+
+import utils
 
 def equal_eigenvalues(A: np.ndarray, B: np.ndarray) -> bool:
     A_eigenvalues = np.sort(np.round(np.real(eigvals(A)), 4))
@@ -13,62 +15,103 @@ class IsomorphicChecker:
         self.use_eigen_check = use_eigen_check
 
     def is_isomorphic(self, A: np.ndarray, B: np.ndarray) -> bool:
-        raise NotImplementedError()
+        if self.use_eigen_check and not equal_eigenvalues(A, B):
+            return False
+        permutation_matrix = self.find_permutation_matrix(A, B)
+        return permutation_matrix != None
 
     def find_permutation_matrix(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
         raise NotImplementedError()
 
 class AllPermuations(IsomorphicChecker):
-    def is_isomorphic(self, A: np.ndarray, B: np.ndarray) -> bool:
-        if self.use_eigen_check and not equal_eigenvalues(A, B):
-            return False
-        permutation_matrix = self.generate_permuation_matrices(A, B)
-        return permutation_matrix != None
-    
     def find_permutation_matrix(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
-        if self.use_eigen_check and not equal_eigenvalues(A, B):
-            return None
-        return self.generate_permuation_matrices(A, B)
-
-    def generate_permuation_matrices(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
         n = len(A)
         perms = permutations(range(n))
         for perm in perms:
             matrix_P = np.eye(n)[list(perm)]
-            if np.array_equal(matrix_P.T @ A @ matrix_P, B):
+            if utils.permutation_matrix_check(A, B, matrix_P):
                 return matrix_P
         return None
 
-class FromProfile(IsomorphicChecker):
-    def is_isomorphic(self, A: np.ndarray, B: np.ndarray) -> bool:
+class DepthFirstSearch(IsomorphicChecker):
+    def find_permutation_matrix(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
         source = np.sum(A, axis=0)
         target = np.sum(B, axis=0)
-        for seq in self.generate_swaps(source, target):
-            pass 
-        raise NotImplementedError
-    
-    def generate_swaps(self, source, target):
-        # Helper function to apply a swap to a list
-        def apply_swap(lst, i, j):
-            lst = lst[:]  # Make a copy to avoid modifying the original
+        
+        # If the two matrices don't have the same 
+        # degrees no permutation matrix can exist
+        if not np.array_equal(np.sort(source), np.sort(target)):
+            return None
+        
+        # Create a new list with i and j swapped
+        def swap(lst, i, j):
+            lst = lst[:]
             lst[i], lst[j] = lst[j], lst[i]
             return lst
-    
+
+        seen = set()
         # Recursive function to explore all swaps
         def dfs(current, swaps):
-            if current == target:
-                results.append(swaps)
-    
-                return
+            if np.array_equal(current, swaps):
+                P = utils.get_permutation_matrix_from_swaps(len(A), swaps)
+                if np.array_equal(P.T @ A @ P, B):
+                    return P
+
             seen.add(tuple(current))
             # Try all possible swaps
             for i in range(len(current)):
                 for j in range(i + 1, len(current)):
-                    swapped = apply_swap(current, i, j)
+                    swapped = swap(current, i, j)
                     if tuple(swapped) not in seen:
-                        dfs(swapped, swaps + [(i, j)])
+                        return dfs(swapped, swaps + [(i, j)])
         
-        results = []
-        seen = set()
-        dfs(source, [])
-        return results
+        return dfs(source, [])
+
+class DegreeGrouping(IsomorphicChecker):
+    def find_permutation_matrix(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
+        source = np.sum(A, axis=0)
+        target = np.sum(B, axis=0)
+        n = len(A)
+        
+        # If the two matrices don't have the same 
+        # degrees no permutation matrix can exist
+        if not np.array_equal(np.sort(source), np.sort(target)):
+            return None
+
+        # Group rows by their sums
+        def group_by_row_sums(matrix):
+            row_sum_groups = {}
+            for i, row_sum in enumerate(np.sum(matrix, axis=1)):
+                if row_sum not in row_sum_groups:
+                    row_sum_groups[row_sum] = []
+                row_sum_groups[row_sum].append(i)
+            return row_sum_groups
+
+        groups_A = group_by_row_sums(A)
+        groups_B = group_by_row_sums(B)
+
+        # Generate permutations of row indices within matching groups
+        matching_permutations = []
+        for row_sum in groups_A:
+            rows_A = groups_A[row_sum]
+            rows_B = groups_B[row_sum]
+            if len(rows_A) != len(rows_B):
+                return None
+            matching_permutations.append(list(permutations(rows_B)))
+
+        # Combine group permutations into overall permutations
+        for perm in product(*matching_permutations):
+            combined_perm = np.arange(n)
+            for group, indices in zip(groups_A.values(), perm):
+                for i, index in zip(group, indices):
+                    combined_perm[i] = index
+
+            # Create the permutation matrix
+            P = np.zeros((n, n), dtype=int)
+            for i, j in enumerate(combined_perm):
+                P[i, j] = 1
+
+            if np.array_equal(A @ P, P @ B):
+                return P
+
+        return None
