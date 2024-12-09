@@ -16,9 +16,10 @@ class IsomorphicChecker:
 
     def is_isomorphic(self, A: np.ndarray, B: np.ndarray) -> bool:
         if self.use_eigen_check and not equal_eigenvalues(A, B):
+            print("Non equal eigenvalues")
             return False
         permutation_matrix = self.find_permutation_matrix(A, B)
-        return permutation_matrix != None
+        return isinstance(permutation_matrix, np.ndarray)
 
     def find_permutation_matrix(self, A: np.ndarray, B: np.ndarray) -> Optional[np.ndarray]:
         raise NotImplementedError()
@@ -86,7 +87,7 @@ class DegreeGrouping(IsomorphicChecker):
                     row_sum_groups[row_sum] = []
                 row_sum_groups[row_sum].append(i)
             return row_sum_groups
-
+        
         groups_A = group_by_row_sums(A)
         groups_B = group_by_row_sums(B)
 

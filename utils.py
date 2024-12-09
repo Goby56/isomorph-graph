@@ -1,11 +1,12 @@
-from typing import List, Tuple
+import random
+from typing import List, Optional, Tuple
 import numpy as np
 import pandas as pd
 import os
 
 GRAPH_DIR = "./graphs"
 
-def generate_isomorphic_graphs(nodes: int) -> Tuple[np.ndarray, np.ndarray]:
+def generate_isomorphic_graphs(nodes: int, is_isomorphic_override: bool = True) -> Tuple[np.ndarray, np.ndarray]:
     A = np.zeros((nodes, nodes), dtype=int)
     for i in range(nodes):
         for j in range(i + 1, nodes):
@@ -16,10 +17,16 @@ def generate_isomorphic_graphs(nodes: int) -> Tuple[np.ndarray, np.ndarray]:
     permutation = np.random.permutation(nodes)
     
     B = A[np.ix_(permutation, permutation)]
+
+    if not is_isomorphic_override:
+        i, j = random.choices(range(0, nodes), k=2)
+        B[i, j] = not B[i, j]
+        B[j, i] = not B[i, j]
     
     return A, B
 
-def permutation_matrix_check(A: np.ndarray, B: np.ndarray, P: np.ndarray) -> bool:
+def permutation_matrix_check(A: np.ndarray, B: np.ndarray, P: Optional[np.ndarray]) -> bool:
+    if not isinstance(P, np.ndarray): return False
     return np.array_equal(P.T @ A @ P, B)
 
 def get_permutation_matrix_from_swaps(matrix_size: int, swaps: List[Tuple[int, int]]):

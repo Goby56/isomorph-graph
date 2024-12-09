@@ -6,10 +6,12 @@ from algorithms import IsomorphicChecker
 from performance import PerformanceTest
 
 def check_isomorphism(A: np.ndarray, B: np.ndarray, algorithm: IsomorphicChecker):
-    print(f"Are isomorhpic: {algorithm.is_isomorphic(A, B)}")
+    print(f"Are isomorphic: {algorithm.is_isomorphic(A, B)}")
 
 def test_performance(algorithm: IsomorphicChecker, node_count: int, iterations: int):
     test = PerformanceTest(algorithm, node_count, iterations)
+    if input("Generate non isomorphic graphs too? (y/N)").lower() == "y":
+        test.include_non_isomorphic = True
     test.start()
     print(test)
 
@@ -26,7 +28,7 @@ def select_algorithm(ask_for_eigen_check: bool) -> IsomorphicChecker:
 
     use_eigen_check = True
     if ask_for_eigen_check: 
-        use_eigen_check = input("Use eigen value check? (Y/n)") != "n"
+        use_eigen_check = input("Use eigen value check? (Y/n)").lower() != "n"
     return SelectedClass(use_eigen_check)
 
 def main():
