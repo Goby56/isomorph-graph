@@ -57,7 +57,7 @@ def main():
         print("How many nodes should the graphs have?")
         node_count = utils.ask_for_int(2, 50)
         print("For how many iterations should the algorithm run?")
-        iterations = utils.ask_for_int(1, 100)
+        iterations = utils.ask_for_int(1, 1000)
         test_performance(algorithm, node_count, iterations)
 
 
