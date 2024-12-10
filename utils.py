@@ -19,9 +19,13 @@ def generate_isomorphic_graphs(nodes: int, is_isomorphic_override: bool = True) 
     B = A[np.ix_(permutation, permutation)]
 
     if not is_isomorphic_override:
-        i, j = random.choices(range(0, nodes), k=2)
-        B[i, j] = not B[i, j]
-        B[j, i] = not B[i, j]
+        while True:
+            # Ensure a non isomorphic graph is generated
+            i, j = random.choices(range(0, nodes), k=2)
+            if i != j:
+                B[i, j] = not B[i, j]
+                B[j, i] = not B[i, j]
+                break
     
     return A, B
 

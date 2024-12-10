@@ -11,7 +11,7 @@ class PerformanceTest:
         self.algorithm = algorithm 
         self.graph_size = graph_size
         self.iterations = iterations
-        self.include_non_isomorphic = False
+        self.all_isomorphic = True
         self.log = True
         self.result = {}
 
@@ -21,7 +21,7 @@ class PerformanceTest:
         found_isomorphisms = 0
 
         for _ in range(self.iterations):
-            isomorphic = random.random() < 0.3
+            isomorphic = self.all_isomorphic or random.random() > 0.3
             A, B = utils.generate_isomorphic_graphs(self.graph_size, isomorphic)
             if isomorphic:
                 existing_isomorphisms += 1
@@ -46,5 +46,8 @@ class PerformanceTest:
         self.result["average_time"] = total_time / self.iterations 
 
     def __str__(self) -> str:
-        return f"Average time: {self.result['average_time']:.2f}ms"
+        return f"""
+        Average time: {self.result['average_time']:.2f}ms
+        Found {self.result["found_isomorphisms"]} / {self.result["existing_isomorphisms"]} permutation matrices
+        """
             

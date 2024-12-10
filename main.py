@@ -11,7 +11,7 @@ def check_isomorphism(A: np.ndarray, B: np.ndarray, algorithm: IsomorphicChecker
 def test_performance(algorithm: IsomorphicChecker, node_count: int, iterations: int):
     test = PerformanceTest(algorithm, node_count, iterations)
     if input("Generate non isomorphic graphs too? (y/N)").lower() == "y":
-        test.include_non_isomorphic = True
+        test.all_isomorphic = False
     test.start()
     print(test)
 
