@@ -119,25 +119,26 @@ class DegreeGrouping(IsomorphicChecker):
 
 class OrthonormalMatrices(IsomorphicChecker):
     def find_permutation_matrix(self, A, B):
+        for i in range(len(A)):
+            A[i,i] = 1
+            B[i,i] = 1
+        print(A)
+        print(B)
         A_eigenvalues, U = np.linalg.eig(A)
         B_eigenvalues, V = np.linalg.eig(B)
 
-        U = U[:, ::-1]
-        V = V[:, ::-1]
+        # U = U[:, ::-1]
+        # V = V[:, ::-1]
+        print(np.round(U, decimals=3))
+        print(np.round(V, decimals=3))
         V = V.T
 
-        
-
-        
         if not ((len(A_eigenvalues) == len(A)) and len(B_eigenvalues) == len(B)):
             return None
 
-        
-        
         P = V @ U
-        print(P)
+        print(np.round(P, decimals=2))
         if utils.permutation_matrix_check(A, B, P):
             return P
 
         return None
-    
