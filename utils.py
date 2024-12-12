@@ -31,7 +31,7 @@ def generate_isomorphic_graphs(nodes: int, is_isomorphic_override: bool = True) 
 
 def permutation_matrix_check(A: np.ndarray, B: np.ndarray, P: Optional[np.ndarray]) -> bool:
     if not isinstance(P, np.ndarray): return False
-    return np.array_equal(P.T @ A @ P, B)
+    return np.array_equal(P.T @ A @ P, B) or np.array_equal(P @ A @ P.T, B)
 
 def get_permutation_matrix_from_swaps(matrix_size: int, swaps: List[Tuple[int, int]]):
     P = np.eye(matrix_size)
