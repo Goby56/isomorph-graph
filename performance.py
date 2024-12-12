@@ -20,7 +20,7 @@ class PerformanceTest:
         existing_isomorphisms = 0
         found_isomorphisms = 0
 
-        for _ in range(self.iterations):
+        for i in range(self.iterations):
             isomorphic = self.all_isomorphic or random.random() > 0.3
             A, B = utils.generate_isomorphic_graphs(self.graph_size, isomorphic)
             if isomorphic:
@@ -32,10 +32,10 @@ class PerformanceTest:
             if utils.permutation_matrix_check(A, B, P):
                 found_isomorphisms += 1
                 if self.log:
-                    print(f"Found permuations matrix in {dt:.2f}ms")
+                    print(f"{i+1}: Found permuation matrix in {dt:.2f}ms")
             else:
                 if self.log:
-                    print(f"No permutation matrix found ({dt:.2f}ms)")
+                    print(f"{i+1}: No permutation matrix found ({dt:.2f}ms)")
 
 
                 
